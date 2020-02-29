@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>dynamic-hand-gestures</name>
+  <version>0.0.1</version>
+  <description>Dynamic Hand Gestures Visualizer for LMDHG dataset and Leap Motion realtime gestures</description>
+  <maintainer email="andrea.ranieri@cnr.it">Andrea Ranieri</maintainer>
+  <license>LGPLv3 - Copyright (C) 2020 - CNR-IMATI</license>
+  <url type="website">https://gitlab.com/aviogit/dynamic-hand-gestures</url>
+  <author email="andrea.ranieri@cnr.it">Andrea Ranieri</author>
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_runtime</run_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+</package>

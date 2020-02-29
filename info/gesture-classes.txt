@@ -1,0 +1,14 @@
+     1	C
+     2	Catching
+     3	Catching-hands-up
+     4	Line
+     5	Pointing
+     6	Pointing-With-Hand-Raised
+     7	Resting
+     8	Rotating
+     9	Scroll-Finger
+    10	Shaking
+    11	Shaking-Low
+    12	Shaking-Raised-Fist
+    13	Slicing
+    14	Zoom

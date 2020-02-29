@@ -1,0 +1,1134 @@
+     1	Shaking Low
+     2	Resting
+     3	Slicing
+     4	Resting
+     5	Zoom
+     6	Resting
+     7	Catching
+     8	Resting
+     9	C
+    10	Resting
+    11	Shaking
+    12	Resting
+    13	Line
+    14	Resting
+    15	Scroll Finger
+    16	Resting
+    17	Pointing
+    18	Resting
+    19	Rotating
+    20	Resting
+    21	Catching hands up
+    22	Resting
+    23	Shaking Raised Fist
+    24	Shaking
+    25	Resting
+    26	Scroll Finger
+    27	Resting
+    28	Catching hands up
+    29	Resting
+    30	Line
+    31	Resting
+    32	Shaking Low
+    33	Resting
+    34	Catching
+    35	Resting
+    36	Slicing
+    37	Resting
+    38	Zoom
+    39	Resting
+    40	C
+    41	Resting
+    42	Shaking Raised Fist
+    43	Resting
+    44	Pointing
+    45	Resting
+    46	Rotating
+    47	Pointing
+    48	Resting
+    49	Shaking Raised Fist
+    50	Resting
+    51	Scroll Finger
+    52	Resting
+    53	Catching hands up
+    54	Resting
+    55	Rotating
+    56	Resting
+    57	Catching
+    58	Resting
+    59	Line
+    60	Resting
+    61	Slicing
+    62	Resting
+    63	Zoom
+    64	Resting
+    65	Shaking
+    66	Resting
+    67	C
+    68	Resting
+    69	Shaking Low
+    70	Scroll Finger
+    71	Resting
+    72	Pointing
+    73	Resting
+    74	Rotating
+    75	Resting
+    76	Slicing
+    77	Resting
+    78	Catching hands up
+    79	Resting
+    80	Line
+    81	Resting
+    82	C
+    83	Resting
+    84	Shaking Low
+    85	Resting
+    86	Zoom
+    87	Resting
+    88	Shaking Raised Fist
+    89	Resting
+    90	Catching
+    91	Slicing
+    92	Resting
+    93	Shaking Raised Fist
+    94	Resting
+    95	Pointing
+    96	Resting
+    97	Shaking
+    98	Resting
+    99	Shaking Low
+   100	Resting
+   101	Catching hands up
+   102	Resting
+   103	Rotating
+   104	Resting
+   105	Line
+   106	Resting
+   107	Scroll Finger
+   108	Resting
+   109	Zoom
+   110	Resting
+   111	C
+   112	Resting
+   113	Catching
+   114	Scroll Finger
+   115	Resting
+   116	Line
+   117	Resting
+   118	Shaking Raised Fist
+   119	Resting
+   120	Rotating
+   121	Resting
+   122	Slicing
+   123	Resting
+   124	Shaking Low
+   125	Resting
+   126	C
+   127	Resting
+   128	Zoom
+   129	Resting
+   130	Catching hands up
+   131	Resting
+   132	Catching
+   133	Resting
+   134	Shaking
+   135	Resting
+   136	Pointing
+   137	Catching hands up
+   138	Resting
+   139	Catching
+   140	Resting
+   141	Rotating
+   142	Resting
+   143	Scroll Finger
+   144	Resting
+   145	Line
+   146	Resting
+   147	Shaking Raised Fist
+   148	Resting
+   149	Slicing
+   150	Resting
+   151	Pointing
+   152	Resting
+   153	Shaking
+   154	Resting
+   155	Shaking Low
+   156	Resting
+   157	C
+   158	Resting
+   159	Zoom
+   160	Shaking
+   161	Resting
+   162	C
+   163	Resting
+   164	Shaking Raised Fist
+   165	Resting
+   166	Zoom
+   167	Resting
+   168	Shaking Low
+   169	Resting
+   170	Slicing
+   171	Resting
+   172	Line
+   173	Resting
+   174	Catching hands up
+   175	Resting
+   176	Scroll Finger
+   177	Resting
+   178	Pointing
+   179	Resting
+   180	Rotating
+   181	Resting
+   182	Catching
+   183	Resting
+   184	Line
+   185	Resting
+   186	Slicing
+   187	Resting
+   188	Shaking Raised Fist
+   189	Resting
+   190	Rotating
+   191	Resting
+   192	Scroll Finger
+   193	Resting
+   194	Shaking
+   195	C
+   196	Resting
+   197	Catching
+   198	Resting
+   199	Pointing
+   200	Resting
+   201	Shaking Low
+   202	Resting
+   203	Catching hands up
+   204	Shaking
+   205	Resting
+   206	Slicing
+   207	Resting
+   208	Zoom
+   209	Resting
+   210	Shaking Low
+   211	Resting
+   212	Rotating
+   213	Resting
+   214	Catching hands up
+   215	Resting
+   216	Shaking Raised Fist
+   217	Resting
+   218	Pointing
+   219	Resting
+   220	Scroll Finger
+   221	Resting
+   222	Catching
+   223	Resting
+   224	C
+   225	C
+   226	Resting
+   227	Shaking Low
+   228	Resting
+   229	Catching
+   230	Resting
+   231	Rotating
+   232	Resting
+   233	Shaking Raised Fist
+   234	Resting
+   235	Line
+   236	Resting
+   237	Pointing
+   238	Resting
+   239	Scroll Finger
+   240	Resting
+   241	Shaking
+   242	Resting
+   243	Slicing
+   244	Resting
+   245	Pointing With Hand Raised
+   246	Resting
+   247	Catching hands up
+   248	Resting
+   249	Zoom
+   250	Resting
+   251	Catching
+   252	Resting
+   253	Rotating
+   254	Resting
+   255	Shaking Low
+   256	Resting
+   257	Shaking
+   258	Resting
+   259	Zoom
+   260	Resting
+   261	Catching hands up
+   262	Resting
+   263	Shaking Raised Fist
+   264	Resting
+   265	Pointing
+   266	Resting
+   267	Slicing
+   268	Resting
+   269	Line
+   270	Resting
+   271	Scroll Finger
+   272	Resting
+   273	C
+   274	Catching hands up
+   275	Resting
+   276	Shaking Low
+   277	Resting
+   278	Shaking
+   279	Pointing
+   280	Line
+   281	Resting
+   282	Catching
+   283	Slicing
+   284	C
+   285	Resting
+   286	C
+   287	Resting
+   288	Shaking
+   289	Resting
+   290	Shaking Low
+   291	Resting
+   292	Zoom
+   293	Resting
+   294	Line
+   295	Resting
+   296	Scroll Finger
+   297	Resting
+   298	Shaking Raised Fist
+   299	Resting
+   300	Slicing
+   301	Resting
+   302	Rotating
+   303	Resting
+   304	Catching hands up
+   305	Resting
+   306	Catching
+   307	Resting
+   308	Pointing
+   309	C
+   310	Resting
+   311	Shaking Low
+   312	Resting
+   313	Scroll Finger
+   314	Resting
+   315	Pointing
+   316	Resting
+   317	Zoom
+   318	Catching
+   319	Resting
+   320	Rotating
+   321	Resting
+   322	Line
+   323	Resting
+   324	Shaking
+   325	Resting
+   326	Slicing
+   327	Resting
+   328	Shaking Raised Fist
+   329	Catching hands up
+   330	Rotating
+   331	Resting
+   332	Catching hands up
+   333	Resting
+   334	Zoom
+   335	Resting
+   336	Shaking
+   337	Resting
+   338	Slicing
+   339	Resting
+   340	Shaking Raised Fist
+   341	Resting
+   342	Shaking Low
+   343	Resting
+   344	Pointing
+   345	Resting
+   346	Catching
+   347	Rotating
+   348	Resting
+   349	Zoom
+   350	Resting
+   351	Line
+   352	Resting
+   353	Pointing
+   354	Resting
+   355	Catching hands up
+   356	Resting
+   357	Shaking Low
+   358	Resting
+   359	Shaking
+   360	Resting
+   361	Scroll Finger
+   362	Resting
+   363	Catching
+   364	Resting
+   365	Slicing
+   366	Resting
+   367	Shaking Raised Fist
+   368	Slicing
+   369	Resting
+   370	Catching
+   371	Resting
+   372	Shaking Low
+   373	Resting
+   374	Scroll Finger
+   375	Resting
+   376	Pointing
+   377	Resting
+   378	Shaking Raised Fist
+   379	Resting
+   380	Rotating
+   381	Resting
+   382	Line
+   383	Resting
+   384	Zoom
+   385	Catching hands up
+   386	Resting
+   387	Shaking
+   388	Resting
+   389	C
+   390	C
+   391	Catching hands up
+   392	Resting
+   393	Scroll Finger
+   394	Resting
+   395	Shaking Raised Fist
+   396	Resting
+   397	Shaking Low
+   398	Resting
+   399	Line
+   400	Resting
+   401	Pointing
+   402	Resting
+   403	Catching
+   404	Resting
+   405	Rotating
+   406	Resting
+   407	Shaking
+   408	Resting
+   409	Zoom
+   410	Zoom
+   411	Resting
+   412	Rotating
+   413	Resting
+   414	Shaking Raised Fist
+   415	Resting
+   416	Shaking
+   417	Resting
+   418	C
+   419	Resting
+   420	Shaking Low
+   421	Resting
+   422	Catching hands up
+   423	Resting
+   424	Slicing
+   425	Resting
+   426	Pointing
+   427	Resting
+   428	Line
+   429	Resting
+   430	Catching
+   431	Resting
+   432	Scroll Finger
+   433	Shaking Raised Fist
+   434	Resting
+   435	Catching
+   436	Shaking
+   437	Resting
+   438	Zoom
+   439	Resting
+   440	Line
+   441	Resting
+   442	Shaking Low
+   443	Resting
+   444	Pointing
+   445	Resting
+   446	Slicing
+   447	Resting
+   448	C
+   449	Resting
+   450	Rotating
+   451	Resting
+   452	Catching hands up
+   453	Resting
+   454	Scroll Finger
+   455	Resting
+   456	Rotating
+   457	Resting
+   458	Shaking Raised Fist
+   459	C
+   460	Resting
+   461	Pointing
+   462	Resting
+   463	Slicing
+   464	Resting
+   465	Scroll Finger
+   466	Resting
+   467	Zoom
+   468	Resting
+   469	Pointing With Hand Raised
+   470	Catching hands up
+   471	Resting
+   472	Shaking
+   473	Shaking Low
+   474	Resting
+   475	Line
+   476	Resting
+   477	Catching
+   478	Zoom
+   479	Resting
+   480	Shaking Raised Fist
+   481	Resting
+   482	Pointing
+   483	Resting
+   484	Shaking
+   485	Resting
+   486	Catching hands up
+   487	Resting
+   488	Rotating
+   489	Resting
+   490	C
+   491	Resting
+   492	Catching
+   493	Resting
+   494	Line
+   495	Resting
+   496	Scroll Finger
+   497	Resting
+   498	Slicing
+   499	Resting
+   500	Slicing
+   501	Resting
+   502	Shaking Low
+   503	Resting
+   504	Zoom
+   505	Resting
+   506	Shaking Raised Fist
+   507	Resting
+   508	Rotating
+   509	Resting
+   510	C
+   511	Resting
+   512	Shaking
+   513	Resting
+   514	Line
+   515	Resting
+   516	Pointing
+   517	Resting
+   518	Catching hands up
+   519	Resting
+   520	Catching
+   521	Resting
+   522	Scroll Finger
+   523	Resting
+   524	Shaking
+   525	Resting
+   526	Catching hands up
+   527	Resting
+   528	Rotating
+   529	Resting
+   530	Shaking Raised Fist
+   531	Resting
+   532	Slicing
+   533	Resting
+   534	Shaking Low
+   535	Resting
+   536	Line
+   537	Resting
+   538	C
+   539	Resting
+   540	Catching
+   541	Resting
+   542	Scroll Finger
+   543	Resting
+   544	Zoom
+   545	Resting
+   546	Pointing
+   547	Scroll Finger
+   548	Resting
+   549	Shaking Low
+   550	Resting
+   551	C
+   552	Resting
+   553	Pointing
+   554	Resting
+   555	Shaking
+   556	Resting
+   557	Catching
+   558	Resting
+   559	Slicing
+   560	Resting
+   561	Rotating
+   562	Resting
+   563	Line
+   564	Resting
+   565	Zoom
+   566	Resting
+   567	Catching hands up
+   568	Resting
+   569	Shaking Raised Fist
+   570	Catching hands up
+   571	Resting
+   572	Pointing
+   573	Resting
+   574	Pointing With Hand Raised
+   575	Resting
+   576	Shaking
+   577	Resting
+   578	Zoom
+   579	Resting
+   580	Catching
+   581	Resting
+   582	Shaking Raised Fist
+   583	Resting
+   584	Line
+   585	Resting
+   586	Slicing
+   587	Resting
+   588	Rotating
+   589	Resting
+   590	C
+   591	Resting
+   592	Shaking Low
+   593	Resting
+   594	Scroll Finger
+   595	Catching
+   596	Resting
+   597	Shaking
+   598	Resting
+   599	C
+   600	Resting
+   601	Scroll Finger
+   602	Resting
+   603	Shaking Low
+   604	Resting
+   605	Shaking Raised Fist
+   606	Resting
+   607	Pointing With Hand Raised
+   608	Resting
+   609	Pointing
+   610	Resting
+   611	Rotating
+   612	Resting
+   613	Zoom
+   614	Resting
+   615	Slicing
+   616	Resting
+   617	Catching hands up
+   618	Scroll Finger
+   619	Resting
+   620	Slicing
+   621	Resting
+   622	C
+   623	Resting
+   624	Catching
+   625	Resting
+   626	Zoom
+   627	Resting
+   628	Shaking Raised Fist
+   629	Resting
+   630	Pointing
+   631	Resting
+   632	Shaking Low
+   633	Resting
+   634	Rotating
+   635	Resting
+   636	Line
+   637	Resting
+   638	Shaking
+   639	Resting
+   640	Pointing With Hand Raised
+   641	Resting
+   642	Catching hands up
+   643	Shaking
+   644	Resting
+   645	Shaking Raised Fist
+   646	Resting
+   647	Pointing With Hand Raised
+   648	Resting
+   649	Rotating
+   650	Resting
+   651	Shaking Low
+   652	Resting
+   653	Scroll Finger
+   654	Resting
+   655	C
+   656	Resting
+   657	Pointing
+   658	Resting
+   659	Catching
+   660	Resting
+   661	Slicing
+   662	Resting
+   663	Line
+   664	Resting
+   665	Catching hands up
+   666	Resting
+   667	Zoom
+   668	Pointing With Hand Raised
+   669	Resting
+   670	Catching hands up
+   671	Resting
+   672	Shaking Low
+   673	Resting
+   674	Line
+   675	Resting
+   676	Shaking
+   677	Resting
+   678	Slicing
+   679	Resting
+   680	Rotating
+   681	Resting
+   682	Shaking Raised Fist
+   683	Resting
+   684	Pointing
+   685	Resting
+   686	Zoom
+   687	Resting
+   688	Catching
+   689	Resting
+   690	C
+   691	Resting
+   692	Scroll Finger
+   693	Rotating
+   694	Resting
+   695	Slicing
+   696	Resting
+   697	Shaking
+   698	Resting
+   699	Pointing With Hand Raised
+   700	C
+   701	Resting
+   702	Line
+   703	Resting
+   704	Zoom
+   705	Pointing
+   706	Resting
+   707	Catching
+   708	Resting
+   709	Catching hands up
+   710	Resting
+   711	Scroll Finger
+   712	Resting
+   713	Shaking Low
+   714	Resting
+   715	Shaking Raised Fist
+   716	Catching
+   717	Resting
+   718	Catching hands up
+   719	Resting
+   720	Line
+   721	Rotating
+   722	Resting
+   723	Shaking
+   724	Resting
+   725	Shaking Raised Fist
+   726	Resting
+   727	Slicing
+   728	Resting
+   729	Shaking Low
+   730	Resting
+   731	Pointing With Hand Raised
+   732	Resting
+   733	Zoom
+   734	Resting
+   735	Scroll Finger
+   736	Resting
+   737	Pointing
+   738	Resting
+   739	C
+   740	C
+   741	Resting
+   742	Catching
+   743	Resting
+   744	Pointing With Hand Raised
+   745	Resting
+   746	Shaking Raised Fist
+   747	Catching hands up
+   748	Shaking
+   749	Resting
+   750	Zoom
+   751	Shaking Low
+   752	Resting
+   753	Scroll Finger
+   754	Resting
+   755	Rotating
+   756	Resting
+   757	Slicing
+   758	Resting
+   759	Line
+   760	Resting
+   761	Pointing
+   762	Shaking
+   763	Resting
+   764	Slicing
+   765	Resting
+   766	Rotating
+   767	Resting
+   768	Catching hands up
+   769	Resting
+   770	Catching
+   771	Resting
+   772	Line
+   773	Resting
+   774	Zoom
+   775	Resting
+   776	Scroll Finger
+   777	Resting
+   778	C
+   779	Resting
+   780	Pointing
+   781	Resting
+   782	Pointing With Hand Raised
+   783	Resting
+   784	Shaking Raised Fist
+   785	Resting
+   786	Shaking Low
+   787	Zoom
+   788	Slicing
+   789	Resting
+   790	Line
+   791	Resting
+   792	Catching
+   793	Resting
+   794	Rotating
+   795	Resting
+   796	Catching hands up
+   797	Resting
+   798	Shaking Low
+   799	Resting
+   800	C
+   801	Resting
+   802	Shaking Raised Fist
+   803	Resting
+   804	Pointing
+   805	Resting
+   806	Shaking
+   807	Resting
+   808	Pointing With Hand Raised
+   809	Resting
+   810	Scroll Finger
+   811	Resting
+   812	Shaking Low
+   813	Resting
+   814	Catching
+   815	Resting
+   816	Shaking
+   817	Resting
+   818	C
+   819	Resting
+   820	Shaking Raised Fist
+   821	Resting
+   822	Pointing
+   823	Resting
+   824	Line
+   825	Resting
+   826	Slicing
+   827	Resting
+   828	Zoom
+   829	Resting
+   830	Rotating
+   831	Resting
+   832	Pointing With Hand Raised
+   833	C
+   834	Resting
+   835	Shaking Low
+   836	Resting
+   837	Catching
+   838	Resting
+   839	Rotating
+   840	Resting
+   841	Shaking Raised Fist
+   842	Resting
+   843	Line
+   844	Resting
+   845	Pointing
+   846	Resting
+   847	Scroll Finger
+   848	Resting
+   849	Shaking
+   850	Resting
+   851	Slicing
+   852	Resting
+   853	Pointing With Hand Raised
+   854	Resting
+   855	Catching hands up
+   856	Resting
+   857	Zoom
+   858	Rotating
+   859	Resting
+   860	Shaking Raised Fist
+   861	C
+   862	Resting
+   863	Pointing
+   864	Resting
+   865	Slicing
+   866	Resting
+   867	Scroll Finger
+   868	Resting
+   869	Zoom
+   870	Resting
+   871	Pointing With Hand Raised
+   872	Catching hands up
+   873	Resting
+   874	Shaking
+   875	Shaking Low
+   876	Resting
+   877	Line
+   878	Resting
+   879	Catching
+   880	Catching
+   881	Resting
+   882	Catching hands up
+   883	Resting
+   884	Line
+   885	Rotating
+   886	Resting
+   887	Shaking
+   888	Resting
+   889	Shaking Raised Fist
+   890	Resting
+   891	Slicing
+   892	Resting
+   893	Shaking Low
+   894	Resting
+   895	Pointing With Hand Raised
+   896	Resting
+   897	Zoom
+   898	Resting
+   899	Scroll Finger
+   900	Resting
+   901	Pointing
+   902	Resting
+   903	C
+   904	Zoom
+   905	Resting
+   906	Slicing
+   907	Resting
+   908	Rotating
+   909	Resting
+   910	Shaking Raised Fist
+   911	Catching hands up
+   912	Resting
+   913	Line
+   914	Shaking
+   915	Shaking Low
+   916	Resting
+   917	Catching
+   918	Resting
+   919	C
+   920	Resting
+   921	Scroll Finger
+   922	Resting
+   923	Pointing
+   924	Resting
+   925	Pointing With Hand Raised
+   926	Shaking Low
+   927	Resting
+   928	Pointing
+   929	Resting
+   930	Catching
+   931	Resting
+   932	Scroll Finger
+   933	Resting
+   934	Pointing With Hand Raised
+   935	Resting
+   936	Shaking Raised Fist
+   937	Resting
+   938	Line
+   939	Resting
+   940	C
+   941	Resting
+   942	Catching hands up
+   943	Resting
+   944	Rotating
+   945	Resting
+   946	Slicing
+   947	Resting
+   948	Shaking
+   949	Resting
+   950	Zoom
+   951	Shaking Low
+   952	Resting
+   953	Line
+   954	Resting
+   955	Shaking Raised Fist
+   956	Resting
+   957	Zoom
+   958	Resting
+   959	Scroll Finger
+   960	Catching hands up
+   961	Resting
+   962	Shaking
+   963	Resting
+   964	Slicing
+   965	Pointing
+   966	Resting
+   967	C
+   968	Resting
+   969	Pointing With Hand Raised
+   970	Resting
+   971	Catching
+   972	Resting
+   973	Rotating
+   974	Zoom
+   975	Resting
+   976	Slicing
+   977	Resting
+   978	Rotating
+   979	Resting
+   980	Shaking Raised Fist
+   981	Catching hands up
+   982	Resting
+   983	Line
+   984	Shaking
+   985	Shaking Low
+   986	Resting
+   987	Catching
+   988	Resting
+   989	C
+   990	Resting
+   991	Scroll Finger
+   992	Resting
+   993	Pointing
+   994	Resting
+   995	Pointing With Hand Raised
+   996	Shaking
+   997	Resting
+   998	C
+   999	Resting
+  1000	Rotating
+  1001	Line
+  1002	Resting
+  1003	Catching hands up
+  1004	Shaking Raised Fist
+  1005	Resting
+  1006	Catching
+  1007	Resting
+  1008	Pointing With Hand Raised
+  1009	Resting
+  1010	Scroll Finger
+  1011	Resting
+  1012	Pointing
+  1013	Resting
+  1014	Zoom
+  1015	Resting
+  1016	Slicing
+  1017	Resting
+  1018	Shaking Low
+  1019	Shaking Low
+  1020	Resting
+  1021	Pointing
+  1022	Resting
+  1023	Catching
+  1024	Resting
+  1025	Scroll Finger
+  1026	Resting
+  1027	Pointing With Hand Raised
+  1028	Resting
+  1029	Shaking Raised Fist
+  1030	Resting
+  1031	Line
+  1032	Resting
+  1033	C
+  1034	Resting
+  1035	Catching hands up
+  1036	Resting
+  1037	Rotating
+  1038	Resting
+  1039	Slicing
+  1040	Resting
+  1041	Shaking
+  1042	Resting
+  1043	Zoom
+  1044	Shaking Low
+  1045	Resting
+  1046	Line
+  1047	Resting
+  1048	Shaking Raised Fist
+  1049	Resting
+  1050	Zoom
+  1051	Resting
+  1052	Scroll Finger
+  1053	Catching hands up
+  1054	Resting
+  1055	Shaking
+  1056	Resting
+  1057	Slicing
+  1058	Pointing
+  1059	Resting
+  1060	C
+  1061	Resting
+  1062	Pointing With Hand Raised
+  1063	Resting
+  1064	Catching
+  1065	Resting
+  1066	Rotating
+  1067	Shaking
+  1068	Resting
+  1069	C
+  1070	Resting
+  1071	Rotating
+  1072	Line
+  1073	Resting
+  1074	Catching hands up
+  1075	Shaking Raised Fist
+  1076	Resting
+  1077	Catching
+  1078	Resting
+  1079	Pointing With Hand Raised
+  1080	Resting
+  1081	Scroll Finger
+  1082	Resting
+  1083	Pointing
+  1084	Resting
+  1085	Zoom
+  1086	Resting
+  1087	Slicing
+  1088	Resting
+  1089	Shaking Low
+  1090	Line
+  1091	Resting
+  1092	Slicing
+  1093	Resting
+  1094	C
+  1095	Resting
+  1096	Shaking
+  1097	Resting
+  1098	Catching hands up
+  1099	Resting
+  1100	Shaking Low
+  1101	Resting
+  1102	Pointing
+  1103	Resting
+  1104	Zoom
+  1105	Resting
+  1106	Scroll Finger
+  1107	Resting
+  1108	Rotating
+  1109	Resting
+  1110	Catching
+  1111	Resting
+  1112	Shaking Raised Fist
+  1113	Catching
+  1114	Resting
+  1115	Shaking Low
+  1116	Resting
+  1117	Scroll Finger
+  1118	Resting
+  1119	Pointing
+  1120	Resting
+  1121	Slicing
+  1122	Resting
+  1123	Rotating
+  1124	Resting
+  1125	Shaking Raised Fist
+  1126	Resting
+  1127	Line
+  1128	Resting
+  1129	Catching hands up
+  1130	Resting
+  1131	Shaking
+  1132	Resting
+  1133	C
+  1134	Resting
