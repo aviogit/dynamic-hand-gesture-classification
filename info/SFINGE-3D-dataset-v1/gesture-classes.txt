@@ -1,0 +1,13 @@
+     1	one (static)
+     2	two (static)
+     3	three (static)
+     4	four (static)
+     5	OK (static)
+     6	pinch
+     7	grab
+     8	expand
+     9	tap
+    10	swipe left
+    11	swipe right
+    12	swipe V
+    13	swipe O

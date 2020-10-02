@@ -40,7 +40,7 @@ find_package(catkin REQUIRED COMPONENTS rospy roscpp std_msgs message_generation
 
 #generate_messages(DEPENDENCIES std_msgs)
 
-catkin_package(CATKIN_DEPENDS rospy roscpp std_msgs message_runtime)
+catkin_package(CATKIN_DEPENDS rospy roscpp std_msgs message_runtime leap_motion)
 
 ######################################################################################
 ######################################################################################

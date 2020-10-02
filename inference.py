@@ -15,9 +15,11 @@ from enum import Enum
 
 import datetime as dt
 
+import torch
 
 from fastai import *
 from fastai.vision import *
+from fastai.torch_core import defaults
 
 defaults.device = torch.device('cpu')
 
@@ -29,13 +31,22 @@ def load_model(args):
 		learn = cnn_learner(data, models.resnet50, metrics=accuracy)
 		learn.load(args.model_name)
 		learn.export(args.export_pkl_model)
+		print(f'Successfully loaded model: {args.model_name} and exported PKL model: {args.export_pkl_model}')
 	else:
 		model_name = Path(args.model_name).name
 		model_path = Path(args.model_name).parent
 		print(f'About to load model: {model_path}/{model_name}')
-		learn = load_learner(model_path, model_name, device='cuda:0')
+		learn = load_learner(model_path, model_name, device=args.cuda_device)
 		#learn = load_learner('/mnt/btrfs-data/backup-cnr-issia/rementa/the-bramati-axiom-generated-www/dynamic-hand-gestures-resnet-models', 'resnet-50-img_size-None-6b-2020-02-10_18.21.22_0.pkl')
 		print(f'Successfully loaded model: {args.model_name}')
+
+	print(f'******************************************************')
+	classes_str = '\n'
+	for i,cl in enumerate(learn.data.classes):
+		classes_str = classes_str + '['+ str(i) + '] -> ' + cl + ('' if i >= learn.data.c - 1 else '\n')
+	print(f'Loaded model has the following {learn.data.c} classes:{classes_str}')
+	print(f'******************************************************')
+
 	return learn
 
 

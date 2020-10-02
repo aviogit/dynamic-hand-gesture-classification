@@ -1,0 +1,13 @@
+  5652	./expand-71-datafile-expand-7-variable-history-length-and-noise-20200420-225256-hst-400-noise-400.csv.png
+  5724	./four-(static)-74-datafile_4_1-20200414-scale-factor-600-x-offset-300-y-offset-1150-z-offset-250.csv.png
+  6156	./grab-82-datafile_7_4-20200414-scale-factor-600-x-offset-300-y-offset-1150-z-offset-250.csv.png
+  5652	./OK-(static)-67-datafile-ok-1-variable-history-length-and-noise-20200420-225256-hst-400-noise-400.csv.png
+  6441	./one-(static)-65-datafile_1_9-20200414-scale-factor-600-x-offset-300-y-offset-1150-z-offset-250.csv.png
+  6444	./pinch-77-datafile_6_30-20200414-scale-factor-600-x-offset-300-y-offset-1150-z-offset-250.csv.png
+  5508	./swipe-left-56-datafile-swipe-left-2-variable-history-length-and-noise-20200420-225256-hst-400-noise-400.csv.png
+  6300	./swipe-O-96-datafile-swipe-o-3-variable-history-length-and-noise-20200420-225256-hst-400-noise-400.csv.png
+  5724	./swipe-right-60-datafile-swipe-right-4-variable-history-length-and-noise-20200420-225256-hst-400-noise-400.csv.png
+  6012	./swipe-V-63-datafile-swipe-v-3-variable-history-length-and-noise-20200420-225256-hst-400-noise-400.csv.png
+  5724	./tap-65-datafile-tap-6-variable-history-length-and-noise-20200420-225256-hst-400-noise-400.csv.png
+  5652	./three-(static)-69-datafile_3_2-20200414-scale-factor-600-x-offset-300-y-offset-1150-z-offset-250.csv.png
+  5940	./two-(static)-66-datafile_2_3-20200414-scale-factor-600-x-offset-300-y-offset-1150-z-offset-250.csv.png

@@ -1,0 +1,44 @@
+# If fastai throws:
+# ImportError: libcudart.so.9.0: cannot open shared object file: No such file or directory
+# then downgrade pytorch with:
+# #> pip3 install torch===1.2.0 torchvision===0.4.0 -f https://download.pytorch.org/whl/torch_stable.html
+#
+# If ros_receiver.py throws:
+# ModuleNotFoundError: No module named 'roslib'
+# then you need to install ROS via apt:
+# #> echo 'deb http://packages.ros.org/ros/ubuntu bionic main' | sudo tee /etc/apt/sources.list.d/ros.list
+# #> sudo apt update
+# #> sudo apt install ros-melodic-roslib ros-melodic-rospy
+# then...
+# #> source /opt/ros/melodic/setup.bash
+# then...
+# mkdir -p /your/favorite/installation/directory/ros/src ; git clone ssh://git@github.com/ros-drivers/leap_motion ; cd /your/favorite/installation/directory/ros ; catkin_make
+# then...
+# #> source /your/favorite/installation/directory/ros/devel/setup.bash
+#
+# If you get Qt errors:
+# unset LD_LIBRARY_PATH
+# unset LD_PRELOAD
+# unset QT5DIR
+#
+# If you get more CUDA errors: good luck...
+
+#catkin==0.7.20
+fastai==1.0.60
+matplotlib==3.2.0
+numpy==1.18.1
+pandas==1.0.2
+Pillow==6.1.0
+PyQt5==5.13.2
+#rosbag==1.14.3
+#roslaunch==1.14.3
+#roslib==1.14.7
+#rospy==1.14.3
+#rospkg==1.2.3
+#sensor-msgs==1.12.7
+torch==1.4.0
+torchvision==0.3.0
+vispy==0.6.4
+wheel==0.33.1
+pycryptodomex==3.9.8
+gnupg==2.3.1

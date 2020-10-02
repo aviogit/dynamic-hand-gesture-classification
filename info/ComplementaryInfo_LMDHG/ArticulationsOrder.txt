@@ -1,0 +1,59 @@
+hand type="LEFT" 
+    palmPosition  ="(77.6512, 135.345, 48.7707)"
+    wristPosition ="(91.7939, 121.399, 99.4139)"
+	elbowPosition ="(192.328, 46.9487, 336.97)" 
+    thumbPosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+	indexPosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+	middlePosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+	ringPosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+	pinkyPosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+		
+hand type="RIGHT" 
+    palmPosition  ="(77.6512, 135.345, 48.7707)"
+    wristPosition ="(91.7939, 121.399, 99.4139)"
+	elbowPosition ="(192.328, 46.9487, 336.97)" 
+    thumbPosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+	indexPosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+	middlePosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+	ringPosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"
+	pinkyPosition
+		METACARPAL   ="(63.1641, 111.558, 103.153)"
+		PROXIMAL     ="(63.1641, 111.558, 103.153)"
+        INTERMEDIATE ="(32.0933, 130.062, 69.1525)"
+		DISTAL"      ="(21.6896, 137.526, 37.7594)"

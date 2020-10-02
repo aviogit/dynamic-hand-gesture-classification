@@ -8,8 +8,10 @@ import sys
 
 import argparse
 
-import roslib
 import rospy
+import roslib
+import rosbag
+
 from std_msgs.msg import Bool
 from std_msgs.msg import MultiArrayDimension
 from std_msgs.msg import Int32MultiArray
@@ -20,12 +22,94 @@ from enum import Enum
 
 import datetime as dt
 
+from threading import Thread, Lock
 
-scale_factor   = 1000								# between leap_motion ROS driver and Unity
-skeleton_frame = np.zeros(shape=(46, 3))
+from utils import current_milli_time
+from utils import fps_data
+from utils import calc_and_show_fps
 
-def human_callback(human, debug=False):
+human_callback_fps_data = fps_data()
+
+
+
+scale_factor                   = 1000								# between leap_motion ROS driver and Unity
+skeleton_frame                 = np.zeros(shape=(46, 3))
+skeleton_frame_list            = []
+skeleton_frame_last_updated_ms = [current_milli_time()]
+last_saved_time                = 0
+first_topic_time               = 0
+
+global_args                    = None
+
+human_callback_counter         = 0
+human_message_queue            = []
+human_message_queue_idx        = 0
+human_message_queue_prev_perc  = 0
+
+def read_rosbag():
+	fname = '/tmp/2020-02-21-16-39-15-Shaking.bag'
+	bag = rosbag.Bag(fname)
+	for topic, msg, t in bag.read_messages(topics=['/leap_motion/leap_filtered']):
+		print(msg)
+	bag.close()
+
+def print_every_n(text):
+	#if True or human_callback_fps_data.last_upd_time % 1000 == 0:
+	print(text)
+
+def human_callback_dummy(human, debug=False):
+	global human_callback_counter
+	skeleton_frame_last_updated_ms[0] = current_milli_time()						# let the main app know when the skeleton was last updated in the callback
+	calc_and_show_fps(human_callback_fps_data)
+	human_callback_counter+=1
+	if human_callback_counter % 1000 == 0:
+		print(f'Received: {human_callback_counter} callbacks...')
+
+def human_callback(human, debug=False):				# Receives ROS topics and translates the messages into the 46x3 numpy array needed by the visualizer
+	global first_topic_time					# The body of the callback should be simple to be executed very quickly to avoid loosing messages
+	global human_callback_counter				# at least if the user wants so...
+	global human_message_queue
+
+	start_of_callback = current_milli_time()
+
+	human_callback_counter+=1
+	if human_callback_counter % 1000 == 0:
+		print(f'Received: {human_callback_counter} callbacks...')
+
+	if first_topic_time == 0:
+		first_topic_time = current_milli_time()
+		human_callback_impl_thread = Thread(target=human_callback_impl_thread_func, args=(human_message_queue, debug))
+		human_callback_impl_thread.start()
+
+	human_message_queue.append(human)			# TODO: place these two calls in a if block with parameter so that the user can decide
+	#human_callback_impl(human_message_queue)		# whether the ROS coupling should be "tight and lossless" or "loose and lossy"
+
+	end_of_callback = current_milli_time()
+	if debug:
+		print(end_of_callback-start_of_callback)
+
+def human_callback_impl_thread_func(human_message_queue, debug=False):
+	global human_message_queue_idx
+	global human_message_queue_prev_perc
+	print('Human Callback Impl Worker Thread started...')
+	while True:
+		if len(human_message_queue):
+			perc = f'{human_message_queue_idx/len(human_message_queue) * 100.0:.0f}'
+		else:
+			perc = '0'
+		if perc != human_message_queue_prev_perc:
+			print(f'Perc: {perc} - IDX: {human_message_queue_idx} - QLEN: {len(human_message_queue)}')
+			human_message_queue_prev_perc = perc
+		if human_message_queue_idx < len(human_message_queue):
+			human = human_message_queue[human_message_queue_idx]
+			human_message_queue_idx += 1
+			human_callback_impl(human, debug=debug)
+
+def human_callback_impl(human, debug=False):
 	global skeleton_frame
+	global skeleton_frame_last_updated_ms
+	global last_saved_time
+
 
 	# http://docs.ros.org/melodic/api/leap_motion/html/msg/Human.html
 	'''
@@ -74,11 +158,14 @@ def human_callback(human, debug=False):
 	#l_ring_metacarpal l_ring_proximal l_ring_intermediate l_ring_distal
 	#l_pinky_metacarpal l_pinky_proximal l_pinky_intermediate l_pinky_distal
 
+	if debug:
+		cp1 = current_milli_time()
 
 	for idx, hand in enumerate(hands):
 		offset = idx * 23					# because we have 23 "elements" for each hand = 46 elements total = 46x3 points
 		if hand.is_present:
-			hand_letter = 'R' if idx else 'L'
+			if debug:
+				hand_letter = 'R' if idx else 'L'
 
 			flist = hand.finger_list
 			fingerlist = [f.type for f in flist]
@@ -120,42 +207,134 @@ def human_callback(human, debug=False):
 						print(f'{finger.type} - {bone.type} - {bone.bone_start} - {bone.bone_end}')
 						print(f'{finger.type} - {bone.type} - {bs_list} - {be_list}')
 
-					#skeleton_frame[offset + idx_counter    ] = bs_list
 					skeleton_frame[offset + idx_counter] = be_list * scale_factor
 
 					idx_counter += 1
 		else:
 			skeleton_frame[offset:offset+23] = np.zeros(shape=(23, 3))
-	if debug:
-		print(skeleton_frame)
 
+	if debug:
+		cp2 = current_milli_time()
+
+	skeleton_frame_list.append(np.copy(skeleton_frame))		# make a copy and append that to the list, otherwise the next time sk_frame
+									# will be overwritten and we'll end up with a list ALL made of identical elements!
+	if debug:
+		print(80*'=')
+		print(skeleton_frame)
+		print(80*'=')
+		print(skeleton_frame_list[-1])
+		print(80*'=')
+		print(skeleton_frame_list[int(len(skeleton_frame_list)/4)])
+		print(80*'=')
+		print(skeleton_frame_list[int(len(skeleton_frame_list)/3)])
+		print(80*'=')
+		print(skeleton_frame_list[int(len(skeleton_frame_list)/2)])
+		print(80*'=')
+
+	skeleton_frame_last_updated_ms[0] = current_milli_time()						# let the main app know when the skeleton was last updated in the callback
+
+	calc_and_show_fps(human_callback_fps_data)
+
+	if global_args and global_args.save_to_file != '' and len(skeleton_frame_list) % global_args.write_to_file_every_n_rows == 0:
+		save_thread = Thread(target=save_skeleton_to_file, args=(debug,))
+		save_thread.start()
+
+	if debug:
+		cp3 = current_milli_time()
+		print(cp3-cp2, cp2-cp1)
+
+
+def save_skeleton_to_file(debug=False):
+	global last_saved_time 
+	global first_topic_time
+
+	if debug:
+		print(80*'+')
+		print(len(skeleton_frame_list))
+		print(80*'+')
+		print(skeleton_frame_list[0].shape)
+		print(80*'+')
+		print(global_args.save_to_file)
+		print(80*'+')
+		print(skeleton_frame_list[int(len(skeleton_frame_list)/4)])
+		print(skeleton_frame_list[int(len(skeleton_frame_list)/3)])
+		print(skeleton_frame_list[int(len(skeleton_frame_list)/2)])
+		print(80*'+')
+
+	df_save = pd.DataFrame(list(map(np.ravel, skeleton_frame_list)))
+
+	if len(df_save.index) == 3 and df_save.iloc[0, 0] == 0.0 and df_save.iloc[0, -1] == 0.0 and df_save.iloc[0, -1] == 0.0:
+		df_save = df_save.iloc[1:]							# delete just the first blank row we used to give shape to the array
+
+	if debug:
+		print(80*'-')
+		print(len(df_save.index))
+		print(len(df_save.columns))
+		print(80*'-')
+		print(df_save.iloc[int(len(df_save.index)/4)])
+		print(df_save.iloc[int(len(df_save.index)/3)])
+		print(df_save.iloc[int(len(df_save.index)/2)])
+		print(80*'-')
+
+	curr_time = current_milli_time()
+	if global_args:
+		if (len(df_save.index) % global_args.write_to_file_every_n_rows == 0
+			or curr_time - last_saved_time >= global_args.write_to_file_every_n_msecs):
+
+			rows = len(df_save.index)
+			secs = (curr_time-first_topic_time)/1000.0
+			if secs == 0:
+				secs = 0.001
+			print(80*'-')
+			print(f'Saving to file: {global_args.save_to_file} because num rows: {rows} or delta t: {(current_milli_time() - last_saved_time)/1000.0}')
+			print(f'Saving {rows} rows to file, captured in {secs} seconds (an avg of {rows/secs} rows/s)')
+			print(80*'-')
+			save_thread = Thread(target=perform_actual_save, args=(df_save, global_args.label_to_file, global_args.save_to_file,))
+			save_thread.start()
+			last_saved_time = current_milli_time()
+
+def perform_actual_save(df_save, label_to_file, save_to_file):
+	start_save = current_milli_time()
+	df_save.rename(columns={138: 'label'}, inplace=True)
+	df_save['label'] = label_to_file
+	df_save.to_csv(save_to_file, float_format='%.2f')
+	end_save = current_milli_time()
+	secs = (end_save-start_save)/1000.0
+	rows = len(df_save.index)
+	print(f'Saved {rows} rows to {save_to_file} in {secs} seconds.')
 
 
 def subscribe_to_hands_topic(topic):
-	hands_subscriber = rospy.Subscriber(topic, Human, human_callback)
+	hands_subscriber = rospy.Subscriber(topic, Human, human_callback, queue_size=100000, buff_size=2**27)
 	return hands_subscriber
 
 def init_ros(args):
+	global global_args
 	np.set_printoptions(precision=3)		# to allow humans to watch reasonable numbers...
 
 	# ROS initialization
 	rosnode_name = "dynamic_hand_gestures_ros_receiver"
 	rospy.init_node(rosnode_name)
 
-#	# detected_phrase is what the classifier publishes (= Arturo sends to us)
-#	sub_gesture_sequence_topic = "diver/command/detected_phrase"
-#	# command is what is sent to the mission controller (= what we send to Marco)
-#	pub_command_topic = "diver/command/command"
-#	print('Subscribing to topic:', sub_gesture_sequence_topic)
-#	subscriber = rospy.Subscriber(sub_gesture_sequence_topic, Int32MultiArray, gesture_sequence_callback)
-#	print('Publishing topic:', pub_command_topic)
-#	publisher_command = rospy.Publisher(pub_command_topic, syntax_checker_cmd, queue_size=10)
+	print(f'Subscribing to topic: {args.ros_topic} @ {args.fps} FPS')
+	if args.save_to_file != '':
+		print(f'Saving skeleton to file: {args.save_to_file}')
+		if args.label_to_file == '':
+			print(f'WARNING: no label provided, use --label-to-file to give a label to the saved skeleton')
 
-	print(f'Subscribing to topic: {args.ros_topic}')
-	hands_subscriber = subscribe_to_hands_topic(args.ros_topic)
+	if args.ros_topic != '':
+		hands_subscriber = subscribe_to_hands_topic(args.ros_topic)
+	elif args.rosbag_filename != '':
+		read_rosbag()
 	rate_it = rospy.Rate(args.fps)
 
 	rospy.loginfo('%s node successfully initialized.' % rosnode_name)
+
+	human_callback_fps_data.show_fps_textual = args.show_ros_callback_fps
+	human_callback_fps_data.show_fps_text    = 'Hands Callback - '
+	human_callback_fps_data.show_fps_textual_func = print_every_n
+
+	global_args = args
 
 	return rate_it
 
@@ -165,30 +344,28 @@ def argument_parser():
 
 	parser = argparse.ArgumentParser(description='ROS receiver for the Leap Motion Dynamic Hand Gesture (LMDHG) dataset visualizer.')
 	parser.add_argument('--ros-topic', default='/leap_motion/leap_filtered')
+	parser.add_argument('--rosbag-filename', default='')
 	parser.add_argument('--fps', default=60, type=int)
-#	parser.add_argument('--view_name', default='top')
-#	parser.add_argument('--exit_on_eof', default=True)
-#	parser.add_argument('--line_width', default=12.0, type=float)
-#	parser.add_argument('--dataset_path', default='./dataset')
-#	parser.add_argument('--show_label', dest='show_label', action='store_true')
-#	parser.add_argument('--no-show_label', dest='show_label', action='store_false')
-#	parser.add_argument('--debug_segments', dest='debug_segments', action='store_true')
-#	parser.add_argument('--no-debug_segments', dest='debug_segments', action='store_false')
-#	parser.set_defaults(show_label=True)
-#	parser.set_defaults(debug_segments=False)
+	parser.add_argument('--save-to-file',  default='', help='specify the filename where to save the skeleton produced by ros_receiver.py')
+	parser.add_argument('--label-to-file', default='', help='use this to give a label to the file containing the skeleton saved by ros_receiver.py')
+	parser.add_argument('--write-to-file-every-n-rows',  default=100000, type=int, help='while saving skeleton rows generated by ros_receiver.py, write to file every n rows')
+	parser.add_argument('--write-to-file-every-n-msecs', default=120000, type=int, help='while saving skeleton rows generated by ros_receiver.py, write to file every n milliseconds')
+	parser.add_argument('--show-ros-callback-fps',    dest='show_ros_callback_fps', action='store_true', help='show FPS (both instant and average) while receiving ROS messages of the hand pose')
+	parser.add_argument('--no-show-ros-callback-fps', dest='show_ros_callback_fps', action='store_false')
+
 	args = parser.parse_args()
-	print(f'Subscribing to topic: {args.ros_topic}')
 
 
-
-args		= None
+args = None
 
 
 if __name__ == '__main__':
 	argument_parser()
 	rate_it = init_ros(args)
 
+	rospy.spin()
 	# Main ROS loop
-	while (not rospy.is_shutdown()):
-		rate_it.sleep()
+	#while (not rospy.is_shutdown()):
+	#	rate_it.sleep()
+	#	sleep(0.001)
 

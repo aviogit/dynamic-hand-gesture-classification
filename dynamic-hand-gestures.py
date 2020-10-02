@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import signal
 import time
 import sys
 
@@ -13,8 +14,7 @@ from vispy.scene import visuals as vs_visuals
 import vispy.gloo
 import vispy.io
 
-from fastai import *
-from fastai.vision import *
+from vispy.util.event import Event
 
 import matplotlib.colors as mcolors
 
@@ -24,11 +24,20 @@ import datetime as dt
 
 from threading import Thread
 
-from ros_receiver import init_ros
-from ros_receiver import skeleton_frame as ros_skeleton
-
 from inference import do_inference
 from inference import load_model
+
+from utils import current_milli_time
+from utils import fps_data
+from utils import calc_and_show_fps
+
+def do_show_fps(text):
+	global fpsviz
+	fpsviz.text  = text
+	fpsviz.color = 'white'
+
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 show_only_scatter_points	= False
 show_color			= True
@@ -36,8 +45,11 @@ show_axis			= False
 show_edge_traces		= False
 show_nodes			= True
 show_tips_traces		= True
+#show_node_labels		= True
 
 pause				= False
+
+segment_counter			= 0		# Useful for debugging the connection map
 
 # build visuals
 Plot3D = vs_visuals.create_visual_node(visuals.LinePlotVisual)
@@ -170,6 +182,23 @@ translation_map = {
 			'#ZOOM': 'Zoom',
 		}
 
+shrec_2020_gesture_dict = {			# http://www.andreagiachetti.it/shrec20gestures/
+			"one":		1,
+			"two":		2,
+			"three":	3,
+			"four":		4,
+			"OK":		5,
+			"pinch":	6,
+			"grab":		7,
+			"expand":	8,
+			"tap":		9,
+			"swipe-left":	10,
+			"swipe-right":	11,
+			"swipe-V":	12,
+			"swipe-O":	13,
+}
+
+
 
 N = len(CONNECTION_MAP) * 2
 # color array
@@ -183,13 +212,17 @@ debug = False
 if debug:
 	print(color)
 
-def make_skeleton(fn='DataFile1.txt', dataset_path='dataset'):
-	df = pd.DataFrame([line.strip().split(' ') for line in open(fn, 'r')])
-	save_fn = dataset_path / ( Path(fn).stem.lower() + '.csv.xz' )
+def make_skeleton(fn='DataFile1.txt', dataset_path='dataset', debug=False):
+	pfn     = Path(fn)
+	stem    = pfn.name.replace(''.join(pfn.suffixes), '')#.lower()
+	save_fn = dataset_path / (stem + '.csv.xz')
 	if not Path(save_fn).exists():
 		print(f'{save_fn} does not exists, creating it...')
+
 		if not Path(dataset_path).exists():
 			dataset_path.mkdir(exist_ok=True)
+
+		df = pd.DataFrame([line.strip().split(' ') for line in open(fn, 'r')])
 		if debug:
 			print(df.head())
 			print(df.index, df.columns)
@@ -204,6 +237,7 @@ def make_skeleton(fn='DataFile1.txt', dataset_path='dataset'):
 	
 		rows_to_delete = []
 	
+		curr_label = '<NO LABEL>'
 		for idx in df.index:
 			if debug:
 				print(df['label'])
@@ -230,6 +264,20 @@ def make_skeleton(fn='DataFile1.txt', dataset_path='dataset'):
 	else:
 		print(f'Clean and compressed csv data file ({save_fn}) already exists, reloading it...')
 		skeleton = pd.read_csv(save_fn, index_col=0)
+		if debug:
+			print(f'Skeleton: {skeleton} - columns: {skeleton.columns} - len: {len(skeleton.index)}')
+
+		for col in skeleton.columns:
+			if col != 'label':
+				skeleton[col] = skeleton[col] * args.data_scale_factor
+				if int(col) % 3 == 0:
+					skeleton[col] = skeleton[col] + args.data_x_offset
+				if int(col) % 3 == 1:
+					skeleton[col] = skeleton[col] + args.data_y_offset
+				if int(col) % 3 == 2:
+					skeleton[col] = skeleton[col] + args.data_z_offset
+		if debug:
+			print(f'Skeleton: {skeleton} - columns: {skeleton.columns} - len: {len(skeleton.index)}')
 	return skeleton
 
 
@@ -258,11 +306,12 @@ def do_edge_traces(pos, color, debug=False):
 		print(col_array)
 
 
-def do_tips_traces(sk_row, pos, color, idx, reset_history):
+def do_tips_traces(sk_row, pos, color, idx, reset_history, debug=False):
 	global pos_array
 	global col_array
 	global tips_array
 	global tipscol_array
+	global label
 
 	make_colored_fingers()
 
@@ -289,8 +338,20 @@ def do_tips_traces(sk_row, pos, color, idx, reset_history):
 			c, n = get_rgb_normalized_color_from_finger_name(finger)
 			c_arr = [cl for cl in c]
 			c_arr.append(1.0)
-			#print(finger, c, n, c_arr)
+			if debug:
+				print(finger, c, n, c_arr)
 			tipscol_array = np.append(tipscol_array, np.array(c_arr).reshape(1,4), axis=0)
+
+			max_len   = args.clear_history_older_than_n_frames
+
+			# if we have specified a value for --clear-history-older-than-n-frames, truncate the fingertips history array
+			if max_len:
+				if tips_array.shape[0] >= max_len and tipscol_array.shape[0] >= max_len:
+					tips_array    = tips_array[-max_len:]		# most recent "tip traces" are appended at the end
+					tipscol_array = tipscol_array[-max_len:]
+
+			if debug:
+				label = str(tips_array.shape) + ' - ' + str(tipscol_array.shape)
 
 			if debug:
 				print(20*'°')
@@ -301,6 +362,50 @@ def do_tips_traces(sk_row, pos, color, idx, reset_history):
 				print(20*'°')
 			if debug:
 				time.sleep(1)
+
+def one_dot_of_noise(r_palm, tip, noise_array, noisecol_array, c_arr):
+	center = (r_palm - tip)
+	if debug:
+		print('c', center, center.shape)
+		print('t', tip*2, (tip*2).shape)
+	noise = np.array([0.0, 0.0, 0.0])
+	for i in range(3):
+		noise[i] = random.uniform(center[i], tip[i]*2)
+		if debug:
+			print('n', noise, noise.shape)
+
+	noise_array = np.append(noise_array, noise.reshape(1,3), axis=0)
+	noisecol_array = np.append(noisecol_array, np.array(c_arr).reshape(1,4), axis=0)
+
+	if debug:
+		print(f'noise_array: {noise_array}')
+	return noise_array, noisecol_array
+
+def do_noise(sk_row):
+		global noise_array
+		global noisecol_array
+		# if we have specified a value for --add-noise, generate points and add them to the array
+		if args.add_noise or True:
+			for noise in range(int(args.add_noise / 10)):
+				for art in tips.split():
+					tip = np.array(sk_row[finger_articulations[art].value-1])
+					finger = art.replace('_distal', '')
+					c, n = get_rgb_normalized_color_from_finger_name(finger)
+					c_arr = [cl for cl in c]
+					c_arr.append(1.0)
+					if tip[0] != args.data_x_offset and tip[1] != args.data_y_offset and tip[2] != args.data_z_offset: # the original value wasn't 0.0
+						if debug:
+							print(tip, sk_row[finger_articulations['l_palm'].value-1], sk_row[finger_articulations['r_palm'].value-1])
+						l_palm = sk_row[finger_articulations['l_palm'].value-1]
+						r_palm = sk_row[finger_articulations['r_palm'].value-1]
+						if l_palm[0] != args.data_x_offset and l_palm[1] != args.data_y_offset and l_palm[2] != args.data_z_offset:
+							noise_array, noisecol_array = one_dot_of_noise(l_palm, tip, noise_array, noisecol_array, c_arr)
+						if r_palm[0] != args.data_x_offset and r_palm[1] != args.data_y_offset and r_palm[2] != args.data_z_offset:
+							noise_array, noisecol_array = one_dot_of_noise(r_palm, tip, noise_array, noisecol_array, c_arr)
+
+		if noise_array.shape[0] >= args.add_noise and noisecol_array.shape[0] >= args.add_noise:
+			noise_array    = noise_array[-args.add_noise:]
+			noisecol_array = noisecol_array[-args.add_noise:]
 
 
 def create_fingers_dictionary(tips, finger_articulations, debug=False):
@@ -379,7 +484,9 @@ def make_colored_fingers(debug=False):
 
 
 
-def draw_one_frame(sk_row, idx, pos_array, col_array, tips_array, tipscol_array, segment_counter, reset_history, debug=False):
+def draw_one_frame(sk_row, idx, pos_array, col_array, tips_array, tipscol_array, reset_history, debug=False):
+	global segment_counter
+
 	if debug:
 		print(CONNECTION_MAP)			# these are the joints of the hand
 	cm_1 = [ item[0]-1 for item in CONNECTION_MAP ]	# collect the leftmost column of the joints  (e.g. 1), subtract 1 to make it zero-based
@@ -436,6 +543,8 @@ def draw_one_frame(sk_row, idx, pos_array, col_array, tips_array, tipscol_array,
 
 	if show_tips_traces:
 		do_tips_traces(sk_row, pos, color, idx, reset_history)
+		if args.add_noise:
+			do_noise(sk_row)
 
 	if debug:
 		print(pos_array.shape)
@@ -446,10 +555,9 @@ def draw_one_frame(sk_row, idx, pos_array, col_array, tips_array, tipscol_array,
 		scatter.set_data(pos_array, edge_color=None, face_color=(0.4, 0.7, 1, 1), size=10)
 	else:
 		if args.debug_segments:
-			time.sleep(1)
 			col_array[segment_counter] = (1,1,1,1)
 			segment_counter += 1
-			if segment_counter > 100:
+			if segment_counter >= 100:
 				segment_counter = 0
 			do_show_label(str(segment_counter))
 
@@ -464,9 +572,112 @@ def draw_one_frame(sk_row, idx, pos_array, col_array, tips_array, tipscol_array,
 			#tipscol_array[:, 3] = np.logspace(0, 1, tipscol_array.shape[0]) / 10
 			tipscol_array[:, 3] = np.linspace(0, 1, tipscol_array.shape[0])
 			tips_scatter.set_data(tips_array, edge_color=None, face_color=tipscol_array, size=10)
+		if args.add_noise:
+			noisecol_array[:, 3] = np.linspace(0, 1, noisecol_array.shape[0])
+			noise_scatter.set_data(noise_array, edge_color=None, face_color=noisecol_array, size=10)
+
+	calc_and_show_fps(draw_one_frame_fps_data)
+
+
+def write_csv_predictions(inf_counter, label, idx):
+	global write_csv_predictions_df
+
+	df = write_csv_predictions_df
+	if len(df.columns) == 2:
+		write_csv_predictions_df = df.append({-1: 0, 'filename': Path(args.filename).stem.lower(), 'num detected': 0}, ignore_index=True)
+		df = write_csv_predictions_df
+		df.index = df[-1]
+		df.index.names = [None]
+		df.drop(-1, axis=1, inplace=True)
+	print(df)
+	this_pred_str   = 'pred-'+str(inf_counter)
+	last_pred_str   = 'pred-'+str(inf_counter-1)
+	this_pred_cl    = str(shrec_2020_gesture_dict[label])
+	this_pred_start = idx - args.inference_every_n_frames if idx >= args.inference_every_n_frames else 0
+	print(f'pred-{inf_counter} = {this_pred_cl} from {this_pred_start} to {idx} - previous: {last_pred_str}')
+	print(df)
+	if inf_counter > 1 and df[last_pred_str+'-end'][0] == this_pred_start:
+		df[last_pred_str+'-end']   = idx				# we merged two gestures, we must decrement inf_counter
+		return inf_counter - 1
+	else:
+		df[this_pred_str]          = this_pred_cl
+		df[this_pred_str+'-start'] = this_pred_start
+		df[this_pred_str+'-end']   = idx
+		df['num detected']         = inf_counter
+		return inf_counter
 
 
 
+
+def perform_inference(debug=True):
+	global write_csv_predictions_df
+	global images_outdir
+	global inf_counter
+	global label
+	global idx
+
+	do_show_label('')				# empty the label to avoid spoilers to the classifiers
+	img		= canvas.render()
+	png		= vispy.io._make_png(img)
+	if debug:					# when getting: ValueError: ndarray is not C-contiguous
+		print(img.flags)			# https://stackoverflow.com/questions/26778079/valueerror-ndarray-is-not-c-contiguous-in-cython
+	fastai_img	= open_image(BytesIO(png))
+	raw_pred	= do_inference(learn, fastai_img)
+	pred_label	= raw_pred[0]
+	label		= str(pred_label)
+
+	raw_probs       = raw_pred[2]
+	highest_prob_cl = raw_pred[1]
+	confidence      = raw_probs[int(highest_prob_cl)]
+
+	print(80*'=')
+	print(raw_pred)
+	print(80*'=')
+
+	filename = str(dt.datetime.now()).replace('-', '').replace(' ', '-').replace(':', '')  + '-' +	\
+			str(Path(args.filename).stem.lower()) + '-' +					\
+			"{:.3f}".format(confidence) + '-' + "{:03d}".format(idx) + '-' +		\
+			str(int(highest_prob_cl)) + '-' + label + '.png'					# 20200218-125513.291016
+
+	outfn  = images_outdir / filename
+
+	if confidence >= args.save_image_only_when_prob_greater_than:
+		inf_counter += 1
+		with open(outfn, 'wb') as f:
+			f.write(png)
+		if args.write_csv_predictions:
+			inf_counter = write_csv_predictions(inf_counter, label, idx)
+
+	probs        = []
+
+	for prob in raw_probs:
+		if prob > 0.1:
+			probs.append("{:.3f}".format(prob))
+	probs.sort()
+
+	print(str(inf_counter) + ' - ' + str(pred_label) + ' - ' + "{:.3f}".format(confidence) + ' - ' + str(highest_prob_cl) + ' - ' + '/'.join(probs))
+	print(80*'=')
+
+	if debug:
+		label        = str(inf_counter) + ' - ' + str(pred_label) + ' - ' + "{:.3f}".format(confidence) + '\n' + str(highest_prob_cl) + ' - ' + '/'.join(probs)
+	else:
+		label        = str(inf_counter) + ' - ' + str(pred_label)
+
+	return label, confidence
+
+
+def quit_app_if_ros_skeleton_not_updated():
+	curr_time = current_milli_time()
+	if debug:
+		print(f'{curr_time} - {ros_skeleton_update_time_ms[0]}')
+	if curr_time - ros_skeleton_update_time_ms[0] >= 10000:			# TODO: make this a parameter
+		print(f'Not received skeleton updates via ROS topic for {(1.0*(curr_time - ros_skeleton_update_time_ms[0])/1000):.2f} seconds. Quitting the GUI...')
+		from ros_receiver import save_skeleton_to_file
+		save_skeleton_to_file()
+		app.quit()							# this is just a wrapper for the Qt's app.exec() loop
+		return True
+	else:
+		return False
 
 
 
@@ -479,7 +690,6 @@ def update_ros(ev, debug=False):
 	global col_array
 	global tips_array
 	global tipscol_array
-	global segment_counter
 	global inf_counter
 
 	global learn
@@ -509,29 +719,11 @@ def update_ros(ev, debug=False):
 				if idx == timetable[tt_idx][0]:
 					tt_idx += 1
 
-			if idx % 300 == 0:					# make a prediction every 5 seconds, also save the canvas for writing a PNG image...
-				do_show_label('')				# empty the label to avoid spoilers to the classifiers
-				img		= canvas.render()
-				#img		= img.copy(order='C')
-				png		= vispy.io._make_png(img)
-				if debug:					# when getting: ValueError: ndarray is not C-contiguous
-					print(img.flags)			# https://stackoverflow.com/questions/26778079/valueerror-ndarray-is-not-c-contiguous-in-cython
-				fastai_img	= open_image(BytesIO(png))
-				raw_pred	= do_inference(learn, fastai_img)
-				label		= str(raw_pred[0])
-				print(80*'=')
-				print(raw_pred)
-				print(80*'=')
-
-				filename = str(dt.datetime.now()).replace('-', '').replace(' ', '-').replace(':', '') + '-' + label + '.png'		# 20200218-125513.291016
-				with open(filename, 'wb') as f:
-					f.write(png)
-
-				label		= str(raw_pred[0]) + ' ' + str(inf_counter)
-
+			if args.do_inference and idx % args.inference_every_n_frames == 0:	# make a prediction every 5 seconds, also save the canvas for writing a PNG image...
+				label, confidence = perform_inference()
 				reset_history = True
-				inf_counter += 1
 			else:
+				confidence    = -1.001						# if we're not performing inference, we don't have confidence
 				reset_history = False
 
 			if debug:
@@ -539,24 +731,29 @@ def update_ros(ev, debug=False):
 				print(20*'-', ros_skeleton)
 
 			if args.show_label:
-				do_show_label(label)
-			draw_one_frame(ros_skeleton, idx, pos_array, col_array, tips_array, tipscol_array, segment_counter, reset_history)
+				do_show_label(label, confidence)
+			draw_one_frame(ros_skeleton, idx, pos_array, col_array, tips_array, tipscol_array, reset_history)
+
+			quit_app_if_ros_skeleton_not_updated()
 	finally:
 		pass
 
 
-def save_canvas_on_disk(args, idx, lastlabel):
+def save_canvas_on_disk(args, idx, lastlabel, debug=False):
+	global images_outdir
 	# Use render to generate an image object
-	img   = canvas.render()
-	fname = lastlabel.replace(' ', '-') + '-' + str(idx) + '-' + str(Path(args.filename).stem.lower())
+	img    = canvas.render()
+	fname  = lastlabel.replace(' ', '-') + '-' + str(idx) + '-' + str(Path(args.filename).stem.lower())
+	outfn  = images_outdir / fname
 
 	# Use write_png to export your wonderful plot as png!
-	print(f'Saving image: {fname}.png')
-	vispy.io.write_png(f'{fname}.png', img)
+	print(f'Saving image: {outfn}.png')
+	vispy.io.write_png(f'{outfn}.png', img)
 	if args.double_view:
 		set_view(view, 'right')
 		img2 = canvas.render()
-		#print(type(img2), img2.shape, img2)
+		if debug:
+			print(type(img2), img2.shape, img2)
 		vispy.io.write_png(f'{fname}-right.png', img2)
 		double_img = np.concatenate((img, img2), axis=0)
 		vispy.io.write_png(f'{fname}-double.png', double_img)
@@ -570,8 +767,8 @@ def update(ev, debug=False):
 	global tips_array
 	global tipscol_array
 	global label
-	global last_label
-	global segment_counter
+	global lastlabel
+	global confidence
 	global pause
 
 	if debug:
@@ -590,46 +787,54 @@ def update(ev, debug=False):
 
 		if idx < len(skeleton.index):
 			# skeleton -> 13756 x 1
-			# size(skeleton{1}) -> 46 x 3			Matlab, what a shit! Why skeleton is 13756 x 1 and not 13756 x 46 x 3 if you know the sizes of the objects inside each row?!?!
+			# size(skeleton{1}) -> 46 x 3	Matlab, what a shit! Why skeleton is 13756 x 1 and not 13756 x 46 x 3 if you know the sizes of the objects inside each row?!?!
 			# CONNECTION_MAP -> 50 x 2
 			# hline -> 50  x 1
 			# x/y/z -> 50  x 2
 			# pos   -> 100 x 3 (x, y, z)
 			# color -> 100 x 4 (rgba)
 
-			reset_history = False
 
-			if debug:
-				print(len(skeleton.iloc[idx]), '-----------', skeleton.iloc[idx])
-			lastlabel = label
-			label     = skeleton.iloc[idx]['label']
-
-
-			if label != lastlabel:
-				reset_history = True
-
-				if lastlabel:
+			if args.do_inference:
+				reset_history = False
+				if idx % args.inference_every_n_frames == 0:		# make a prediction every 5 seconds, also save the canvas for writing a PNG image...
+					lastlabel         = label
+					label, confidence = perform_inference()
+					if confidence >= args.reset_history_only_when_prob_greater_than:
+						reset_history = True			# our guess is solid! reset the screen and let's start with the next gesture!
+			else:
+				confidence = -1.002					# usually we're not performing inference, we're just reading labels from a file
+				reset_history = False
+	
+				if debug:
+					print(len(skeleton.iloc[idx]), '-----------', skeleton.iloc[idx])
+				lastlabel  = label
+				label      = skeleton.iloc[idx]['label']
+	
+				if label != lastlabel:
+					reset_history = True
+					if lastlabel:
+						save_canvas_on_disk(args, idx, lastlabel)
+				if args.screenshot_every_n_frames != -1 and idx % args.screenshot_every_n_frames == 0 and idx != 0:
 					save_canvas_on_disk(args, idx, lastlabel)
 
 			sk_row    = skeleton.iloc[idx][:-1]		# normally 139 elements (138 + our label), drop the label and go on
 			sk_row    = sk_row.values.reshape(46, 3)	# 138 now reshaped as 46 x 3 (type numpy.ndarray)
 
 			if args.show_label:
-				do_show_label(label)
+				do_show_label(label, confidence)
 
-			draw_one_frame(sk_row, idx, pos_array, col_array, tips_array, tipscol_array, segment_counter, reset_history)
+			draw_one_frame(sk_row, idx, pos_array, col_array, tips_array, tipscol_array, reset_history)
 
 			idx = idx + 1
 			if idx >= len(skeleton.index) and args.exit_on_eof and lastlabel:
-				save_canvas_on_disk(args, idx, lastlabel)
-				'''
-				# Use render to generate an image object
-				img = canvas.render()
-				fname = lastlabel.replace(' ', '-') + '-' str(idx) + '-' + str(Path(args.filename).stem.lower())
-				# Use write_png to export your wonderful plot as png ! 
-				vispy.io.write_png(f'{fname}.png', img)
-				'''
-				sys.exit(0)
+				if not args.do_inference:
+					save_canvas_on_disk(args, idx, lastlabel)
+
+				print(f'Quitting the GUI...')
+				app.quit()				# this is just a wrapper for the Qt's app.exec() loop
+
+
 
 	finally:
 		pass
@@ -648,16 +853,30 @@ def add_line():
 			parent=view.scene)
 	line.antialias=1
 
-def do_show_label(label):
+def do_show_label(label, confidence=-1.0):
 	global textviz
 
-	textviz.text  = label
-	textviz.color = 'white'
+	textviz.text  = label # + '--->' + str(confidence)
+	if int(confidence) == -1:
+		textviz.color = 'white'
+	elif confidence <= 0.5:
+		textviz.color = 'red'
+	elif confidence <= args.save_image_only_when_prob_greater_than:
+		textviz.color = 'yellow'
+	elif confidence <= 1.00:
+		textviz.color = 'green'
+	else:
+		textviz.color = 'cyan'
 
 def add_label_to_scene():
 	global textviz
 	# Put up a text visual to display labels
 	textviz = scene.Text('<Label>', parent=canvas.scene, color='black', pos=[225, 50, 0], font_size=24.)
+
+def add_fps_to_scene():
+	global fpsviz
+	# Put up a text visual to display labels
+	fpsviz = scene.Text('<FPS>', parent=canvas.scene, color='black', pos=[350, 1000, 0], font_size=24.)
 
 def do_show_demo_text(text):
 	global demotextviz
@@ -680,7 +899,6 @@ def add_demo_text_to_scene():
 def on_key_press(event):
 	global pause
 
-	import numpy
 	if event.key == 'Escape':
 		print('Exiting annotation GUI normally!')
 		return
@@ -696,25 +914,33 @@ def on_key_press(event):
 
 def threaded_update():
 	global skeleton
-	for i in skeleton.index:
-		ev = vispy.util.event.Event('dummy_event')
-		'''
-		#ev._blocked = False
-		ev.iteration = i
-		'''
-		'''
-		{'_blocked': False,
-		 '_handled': False,
-		 '_native': None,
-		 '_sources': [<vispy.app.timer.Timer object at 0x7fb54c1925f8>],
-		 '_type': 'timer_timeout',
-		 'count': 121,
-		 'dt': 0.03757810592651367,
-		 'elapsed': 2.6360816955566406,
-		 'iteration': 121}
-		'''
-		update(ev)
-		#time.sleep(0.1)
+
+	'''
+	#ev._blocked = False
+	ev.iteration = i
+	'''
+	'''
+	{'_blocked': False,
+	 '_handled': False,
+	 '_native': None,
+	 '_sources': [<vispy.app.timer.Timer object at 0x7fb54c1925f8>],
+	 '_type': 'timer_timeout',
+	 'count': 121,
+	 'dt': 0.03757810592651367,
+	 'elapsed': 2.6360816955566406,
+	 'iteration': 121}
+	'''
+
+	if skeleton is not None:
+		for i in skeleton.index:
+			ev = vispy.util.event.Event('dummy_event')
+			update(ev)
+	else:	# we don't have skeleton, just ros_skeleton (== skeleton_frame, a single row of 46x3 data representing a single frame with two hands)
+		while(True):
+			ev = vispy.util.event.Event('dummy_event')
+			update(ev)
+			if quit_app_if_ros_skeleton_not_updated():
+				break
 
 def run_app(app):
 	if sys.flags.interactive != 1:
@@ -722,51 +948,132 @@ def run_app(app):
 
 def argument_parser():
 	global args
+	global images_outdir
 
-	parser = argparse.ArgumentParser(description='Visualizer for the Leap Motion Dynamic Hand Gesture (LMDHG) dataset.')
+	global noise_scatter
+
+	parser = argparse.ArgumentParser(description='Visualizer and classifier for the Leap Motion Dynamic Hand Gesture (LMDHG) dataset.')
 
 	parser.add_argument('filename',  nargs='?', default='DataFile1.txt')
-	parser.add_argument('--view-name', default='top')
 	parser.add_argument('--exit-on-eof', default=True)
-	parser.add_argument('--line-width', default=12.0, type=float)
-	parser.add_argument('--fps', default=60, type=int)
-	parser.add_argument('--dataset-path', default='./dataset')
+	parser.add_argument('--dataset-path', default='./dataset', help='output dataset directory: compressed .csv.xz files will be saved here')
+	parser.add_argument('--captured-images-output-dir', default='./<date-time.ms>', help='captured images output directory')
 
-	parser.add_argument('--show-label', dest='show_label', action='store_true')
+	# ------------
+	# -- LABELS --
+	# ------------
+	parser.add_argument('--show-label', dest='show_label', action='store_true', help='show the label while drawing the gesture: hide it to save images for deep learning training/inference')
 	parser.add_argument('--no-show-label', dest='show_label', action='store_false')
-	parser.add_argument('--debug-segments', dest='debug_segments', action='store_true')
+	# ------------
+	# --- INFO ---
+	# ------------
+	parser.add_argument('--show-fps', dest='show_fps', action='store_true', help='show FPS (both instant and average) while drawing the gesture')
+	parser.add_argument('--no-show-fps', dest='show_fps', action='store_false')
+
+	# ---------------
+	# -- DEBUGGING --
+	# ---------------
+	parser.add_argument('--debug-segments', dest='debug_segments', action='store_true', help='add visual debugging information (colors) to help debugging edges in the connection map')
 	parser.add_argument('--no-debug-segments', dest='debug_segments', action='store_false')
-	parser.add_argument('--enable-ros', dest='enable_ros', action='store_true')
+
+	# ---------------------
+	# -- ROS INTEGRATION --
+	# ---------------------
+	parser.add_argument('--enable-ros', dest='enable_ros', action='store_true', help='use ROS to acquire Leap Motion data in real time or from ROSbags')
 	parser.add_argument('--no-enable-ros', dest='enable_ros', action='store_false')
+	parser.add_argument('--ros-topic', default='/leap_motion/leap_filtered', help='specify the ROS topic to subscribe to')
+	parser.add_argument('--save-to-file', default='', help='specify the filename where to save the skeleton produced by ros_receiver.py')
+	parser.add_argument('--label-to-file', default='', help='use this to give a label to the file containing the skeleton saved by ros_receiver.py')
+	parser.add_argument('--write-to-file-every-n-rows',  default=100000, type=int, help='while saving skeleton rows generated by ros_receiver.py, write to file every n rows')
+	parser.add_argument('--write-to-file-every-n-msecs', default=120000, type=int, help='while saving skeleton rows generated by ros_receiver.py, write to file every n milliseconds')
+	parser.add_argument('--show-ros-callback-fps',    dest='show_ros_callback_fps', action='store_true', help='show FPS (both instant and average) while receiving ROS messages of the hand pose')
+	parser.add_argument('--no-show-ros-callback-fps', dest='show_ros_callback_fps', action='store_false')
 
-	parser.add_argument('--ros-topic', default='/leap_motion/leap_filtered')
-	parser.add_argument('--model-name', default='models/resnet-50.pth')
-	parser.add_argument('--export-pkl-model', default=None)
 
-	parser.add_argument('--batch-mode', dest='batch_mode', action='store_true')
+	# ---------------
+	# -- INFERENCE --
+	# ---------------
+	parser.add_argument('--do-inference', dest='do_inference', action='store_true', help='Perform inference with the model loaded specifying --model-name')
+	parser.add_argument('--no-do-inference', dest='do_inference', action='store_false')
+
+	parser.add_argument('--model-name', default='models/resnet-50.pth', help='the model for performing inference in online mode')
+	parser.add_argument('--export-pkl-model', default=None, help='load pth (pytorch model) for inference and save it as pickle file (.pkl)')
+	parser.add_argument('--cuda-device', default='cuda:0', help='change the CUDA device for performing inference (e.g. cuda:0 or cpu)')
+	parser.add_argument('--inference-every-n-frames', default=300, type=int, help='change the time interval on which inference is performed (useful for "quasi real-time" inference)')
+	parser.add_argument('--save-image-only-when-prob-greater-than', default=0.85, type=float, help='save a PNG image only when last inference performed was "very confident" about the classification performed')
+	parser.add_argument('--reset-history-only-when-prob-greater-than', default=0.75, type=float, help='reset fingertips history only when last inference performed was "very confident" about the classification performed. This + a low value of --inference-every-n-frames should do the trick to have real-time inference')
+	parser.add_argument('--write-csv-predictions', dest='write_csv_predictions', action='store_true', help='Write a CSV with the predicted classes and the start/end frame number of the recognized gesture')
+	parser.add_argument('--no-write-csv-predictions', dest='write_csv_predictions', action='store_false')
+
+	# ----------------------
+	# -- BATCH PROCESSING --
+	# ----------------------
+	parser.add_argument('--batch-mode', dest='batch_mode', action='store_true', help='run in batch mode (without a timer to draw the frames) to process data as fast as possible')
 	parser.add_argument('--no-batch-mode', dest='batch_mode', action='store_false')
-	parser.add_argument('--double-view', dest='double_view', action='store_true')
+
+	# ---------------
+	# -- VIEW MODE --
+	# ---------------
+	parser.add_argument('--view-name', default='top', help='change the view: only top and right implemented right now')
+	parser.add_argument('--double-view', dest='double_view', action='store_true', help='before saving the png at the end of the gesture, switch to the other view, save the canvas and join the two views (e.g. top+right) into a double view png file')
 	parser.add_argument('--no-double-view', dest='double_view', action='store_false')
 
-	parser.add_argument('--demo-mode', dest='demo_mode', action='store_true')
+	# ------------------
+	# -- VIEW OPTIONS --
+	# ------------------
+	parser.add_argument('--fps',			default=60,  type=int,   help='render the 3D scene at this rate')
+	parser.add_argument('--line-width',		default=12.0,type=float, help='draw hands with this line width')
+	parser.add_argument('--data-scale-factor',	default=1.0, type=float, help='scale each column of data (except the label obviously) by a scale factor (e.g. 100.0)')
+	parser.add_argument('--data-x-offset',		default=0.0, type=float, help='apply an offset to x/y/z coordinates after having them multiplied by the data scale factor')
+	parser.add_argument('--data-y-offset',		default=0.0, type=float, help='apply an offset to x/y/z coordinates after having them multiplied by the data scale factor')
+	parser.add_argument('--data-z-offset',		default=0.0, type=float, help='apply an offset to x/y/z coordinates after having them multiplied by the data scale factor')
+	parser.add_argument('--screenshot-every-n-frames', default=-1, type=int, help='take a screenshot every n frames, not just at the end of the gesture. Useful for capturing partial gestures')
+	parser.add_argument('--clear-history-older-than-n-frames', default=0, type=int, help='clear fingertips history older than n frames')
+	parser.add_argument('--add-noise',		default=0,  type=int, help='add "history" noise to frames, like another old noisy gesture was performed before the actual one (up to <value> points)')
+
+	# -------------------------------
+	# -- DEMO MODE (unimplemented) --
+	# -------------------------------
+	parser.add_argument('--demo-mode', dest='demo_mode', action='store_true', help='WIP: propose a gesture to the user and ask him/her to replay it (useful to collect gestures for the dataset)')
 	parser.add_argument('--no-demo-mode', dest='demo_mode', action='store_false')
 
 	parser.set_defaults(show_label=True)
+	parser.set_defaults(show_fps=False)
 	parser.set_defaults(debug_segments=False)
 	parser.set_defaults(enable_ros=False)
 	parser.set_defaults(batch_mode=False)
 	parser.set_defaults(double_view=False)
 	parser.set_defaults(demo_mode=False)
+	parser.set_defaults(do_inference=False)
 
 	args = parser.parse_args()
 	if not args.enable_ros and not args.demo_mode:
+		print('')
+		print('')
 		print(f'Opening file: {args.filename}')
 		if args.batch_mode:
 			print(f'Running in batch mode...')
 	else:
+		print('')
+		print('')
 		print(f'Enabling ROS integration via topic: {args.ros_topic} - rendering and receiving topics @ {args.fps} fps...')
 		if args.demo_mode:
 			print(f'Enabling Demo Mode...')
+
+	if args.captured_images_output_dir != './<date-time.ms>':
+		images_outdir = Path(args.captured_images_output_dir)
+
+	# TODO: ok, it's time to have a proper init function... too messy
+	if args.add_noise:
+		noise_scatter = vs_visuals.Markers()
+		view.add(noise_scatter)
+
+	if args.save_image_only_when_prob_greater_than >= 1.0:
+		print('')
+		print(f'Error: parameter passed to --save-image-only-when-prob-greater-than is greater than 1.0, you probably wrote {args.save_image_only_when_prob_greater_than} instead of {args.save_image_only_when_prob_greater_than / 100.0}')
+		print('')
+		sys.exit(0)
+
 
 
 
@@ -776,18 +1083,27 @@ tt_idx		= 0
 inf_counter	= 0
 skeleton	= None
 textviz		= None
+fpsviz		= None
 demotextviz	= None
 pos_array	= np.empty((N, 3))
 col_array	= np.empty((N, 4))
 tips_array	= np.empty((N, 3))
 tipscol_array	= np.empty((N, 4))
+noise_array	= np.empty((1, 3))
+noisecol_array	= np.empty((1, 4))
 label		= ''
-last_label	= ''
+lastlabel	= ''
+confidence      = -1.003			# funny eh? :) but it's useful to track who sets confidence the last in case of problems :)
 dataset_path	= Path('dataset')
-segment_counter	= 0
 fingers		= create_fingers_dictionary(tips, finger_articulations)
 rate_it		= None
 learn		= None
+images_outdir   = Path('./' + str(dt.datetime.now()).replace('-', '').replace(' ', '-').replace(':', ''))
+
+write_csv_predictions_df = pd.DataFrame(columns = [-1, 'filename'])
+
+# Init data structure to show FPS count
+draw_one_frame_fps_data = fps_data()
 
 
 if __name__ == '__main__':
@@ -798,21 +1114,36 @@ if __name__ == '__main__':
 		skeleton = make_skeleton(args.filename, dataset_path)
 		timer = None
 		if not args.batch_mode:
-			timer = app.Timer(interval=0.001, connect=update, start=True)
+			timer = app.Timer(interval=1.0/args.fps, connect=update, start=True)
 	else:
 		import rospy
-		learn   = load_model(args)
+
+		from ros_receiver import init_ros
+		from ros_receiver import skeleton_frame as ros_skeleton
+		from ros_receiver import skeleton_frame_last_updated_ms as ros_skeleton_update_time_ms
+
 		rate_it = init_ros(args)
 		timer   = app.Timer(interval=0.001, connect=update_ros, start=True)
 		if args.demo_mode:
 			add_demo_text_to_scene()
 
+	if args.do_inference:
+		learn   = load_model(args)
+
 	set_view(view, args.view_name, debug=True)	# just to have some feedback at the starting...
 	canvas.show()
 	add_label_to_scene()
+	add_fps_to_scene()
+
+	images_outdir.mkdir(exist_ok=True)
+
+	draw_one_frame_fps_data.show_fps_text    = 'Draw One Frame Func - '
+	draw_one_frame_fps_data.show_fps_textual = args.show_fps
+	draw_one_frame_fps_data.show_fps_graphic = args.show_fps
+	draw_one_frame_fps_data.show_fps_graphic_func = do_show_fps
+
 
 	if args.batch_mode:
-		#thread = Thread(target=threaded_update) #, args = (10, ))
 		thread = Thread(target=run_app, args = (app, ))
 		thread.start()
 		threaded_update()
@@ -822,5 +1153,11 @@ if __name__ == '__main__':
 	if args.batch_mode:
 		thread.join()
 
+	if args.write_csv_predictions:
+		filename = str(dt.datetime.now()).replace('-', '').replace(' ', '-').replace(':', '')  + '-' +	\
+			str(Path(args.filename).stem.lower())
+		outfn  = images_outdir / filename
+		print(f'Writing predictions to CSV file: {outfn}')
+		write_csv_predictions_df.to_csv(outfn)
 
 	
