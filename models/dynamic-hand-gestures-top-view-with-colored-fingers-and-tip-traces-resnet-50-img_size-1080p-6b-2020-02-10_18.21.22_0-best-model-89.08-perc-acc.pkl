@@ -1,0 +1,1 @@
+/mnt/btrfs-data/backup-cnr-issia/rementa/the-bramati-axiom-generated-www/dynamic-hand-gestures-resnet-models/resnet-50-img_size-None-6b-2020-02-10_18.21.22_0.pkl

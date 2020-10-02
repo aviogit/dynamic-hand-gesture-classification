@@ -1,1 +1,6 @@
 resnet-50-img_size-540-960-4a-2020-04-21_15.47.18-SHREC-contest-dataset-transfer-learning-from-CNR-dataset-data-augmentation-with-partial-gestures-and-noise.pkl filter=lfs diff=lfs merge=lfs -text
+dynamic-hand-gestures-top-view-with-colored-fingers-and-tip-traces-resnet-50-img_size-1080p-6b-2020-02-10_18.21.22_0-best-model-89.08-perc-acc.pkl filter=lfs diff=lfs merge=lfs -text
+resnet-50-img_size-540-960-4a-2020-02-25_11.05.03-epoch-8-stronger-data-augmentation-new-cnr-dataset-2k-images.pkl filter=lfs diff=lfs merge=lfs -text
+resnet-50-img_size-540-960-4a-2020-04-14_15.48.20-SHREC-contest-dataset-first-attempt-transfer-learning-from-CNR-dataset.pkl filter=lfs diff=lfs merge=lfs -text
+resnet-50-img_size-540-960-4b-20200221-131552-epoch-9-stronger-data-augmentation.pkl filter=lfs diff=lfs merge=lfs -text
+resnet-50-img_size-540-960-4a-2020-04-21_15.47.18-SHREC-contest-dataset-transfer-learning-from-CNR-dataset-data-augmentation-with-partial-gestures-and-noise-epoch-9-acc-0.996360.pth filter=lfs diff=lfs merge=lfs -text
