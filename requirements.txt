@@ -39,6 +39,6 @@ PyQt5==5.13.2
 torch==1.4.0
 torchvision==0.3.0
 vispy==0.6.4
-wheel==0.33.1
+wheel==0.38.1
 pycryptodomex==3.9.8
 gnupg==2.3.1
